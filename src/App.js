@@ -120,13 +120,13 @@ class MainViz extends React.Component {
     viz.append('text') // X
       .html('X: Characters Used')
         .attr('color', 'black')
-        .attr('transform', `translate(${xScale(characterCount * .01)},${yScale(wordCount * .01)})`)
+        .attr('transform', `translate(${xScale(characterCount * .01)},${yScale(wordCount * .02)})`)
         .attr('text-align', 'left');
 
     viz.append('text') // Y
       .html('Y: Words Remaining')
         .attr('color', 'black')
-        .attr('transform', `translate(${xScale(characterCount * .01)},${yScale(wordCount * .04)})`)
+        .attr('transform', `translate(${xScale(characterCount * .01)},${yScale(wordCount * .05)})`)
         .attr('text-align', 'left');
 
     viz.append('path') // triangle key
@@ -135,12 +135,12 @@ class MainViz extends React.Component {
       .attr('d', d3.symbol()
         .type(d3.symbolTriangle)
         .size(230))
-          .attr('transform', `translate(${xScale(characterCount * .012)},${yScale(wordCount * .065)})rotate(180)`);
+          .attr('transform', `translate(${xScale(characterCount * .015)},${yScale(wordCount * .08)})rotate(180)`);
 
     viz.append('text') // unique marker key text
       .html(`"${lastUniqueWord}" ~ last of ${uniqueCount} unique words used`)
         .attr('color', 'black')
-        .attr('transform', `translate(${xScale(characterCount * .02)},${yScale(wordCount * .08)})`)
+        .attr('transform', `translate(${xScale(characterCount * .025)},${yScale(wordCount * .1)})`)
         .attr('text-align', 'center');
 
     viz.append('path') // plotted triangle
