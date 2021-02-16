@@ -1,7 +1,7 @@
 {
   "files": {
-    "main.js": "/TextCheck/static/js/main.e0b00c4b.chunk.js",
-    "main.js.map": "/TextCheck/static/js/main.e0b00c4b.chunk.js.map",
+    "main.js": "/TextCheck/static/js/main.d5da0457.chunk.js",
+    "main.js.map": "/TextCheck/static/js/main.d5da0457.chunk.js.map",
     "runtime-main.js": "/TextCheck/static/js/runtime-main.cc1f5897.js",
     "runtime-main.js.map": "/TextCheck/static/js/runtime-main.cc1f5897.js.map",
     "static/js/2.d49a9601.chunk.js": "/TextCheck/static/js/2.d49a9601.chunk.js",
@@ -12,6 +12,6 @@
   "entrypoints": [
     "static/js/runtime-main.cc1f5897.js",
     "static/js/2.d49a9601.chunk.js",
-    "static/js/main.e0b00c4b.chunk.js"
+    "static/js/main.d5da0457.chunk.js"
   ]
 }
