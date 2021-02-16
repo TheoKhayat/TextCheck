@@ -4,34 +4,33 @@ import * as d3 from 'd3';
 
 import mlk from './static/sampleData.js'; // demo data
 
-//presets
-const margin = { top: 30, right: 30, bottom: 30, left: 30 },
+const margin = { top: 30, right: 30, bottom: 30, left: 30 }, //presets
   width = window.innerWidth,
   height = window.innerHeight*.8;
 
-//helpers
-function cleanText(textIn) {return textIn.toLowerCase().replace(/'\B|[^a-z'? ]/g, ``)};
+function cleanText(textIn) {return textIn.toLowerCase().replace(/[^0-9a-z]/gi, ``)}; //helper
 
-// main viz component
-class MainViz extends React.Component {
+
+class MainViz extends React.Component { // state => render HTML
   state = {
     textAreaContent: '',
     selectedWord: 'the'
   };
 
-  handleTextIn = (e, { value }) => this.setState({ textAreaContent: value });
+  handleTextIn = (e, { value }) => this.setState({ textAreaContent: value }); // used in render()
 
-  render() {
+  render() { // re-renders HTML when state changes
     var selectedWord = this.state.selectedWord,
       textIn = this.state.textAreaContent;
-    if (!textIn) {textIn = mlk.slice(0,301)};
+    if (!textIn) {textIn = mlk.slice(0,301)}; // sample
     textIn = textIn.trimEnd().replaceAll('\n', ' ');
     
     var splitTextIn = textIn.split(' '),
       wordCount = splitTextIn.length,
       characterCount = textIn.replaceAll(' ', '').length,
-      uniqueWords = new Set(cleanText(textIn).split(' ')),
+      uniqueWords = new Set(splitTextIn.map(word => cleanText(word))),
       uniqueCount = uniqueWords.size;
+    
 
     // axis
     var xScale = d3.scaleLinear()
@@ -77,7 +76,7 @@ class MainViz extends React.Component {
         });
       };
 
-      wordsVizArray.push({ // => bars 
+      wordsVizArray.push({ // bars data => rectangles
         originalWord: thisWord,
         cleanedWord: cleanWord,
         punctuationsArray: thisPunctuations, // unused as of now
@@ -118,15 +117,15 @@ class MainViz extends React.Component {
 
     // Key
     viz.append('text') // X
-      .html('X: Characters Used')
+      .html(`X: Characters Used / ${characterCount}`)
         .attr('color', 'black')
-        .attr('transform', `translate(${xScale(characterCount * .01)},${yScale(wordCount * .04)})`)
+        .attr('transform', `translate(${xScale(characterCount * .01)},${yScale(wordCount * .04)})`) // x,y percentiles
         .attr('text-align', 'left');
 
     viz.append('text') // Y
-      .html('Y: Words Remaining')
+      .html(`Y: Words Remaining / ${wordCount}`)
         .attr('color', 'black')
-        .attr('transform', `translate(${xScale(characterCount * .01)},${yScale(wordCount * .08)})`)
+        .attr('transform', `translate(${xScale(characterCount * .01)},${yScale(wordCount * .07)})`)
         .attr('text-align', 'left');
 
     viz.append('path') // triangle key
@@ -135,12 +134,12 @@ class MainViz extends React.Component {
       .attr('d', d3.symbol()
         .type(d3.symbolTriangle)
         .size(230))
-          .attr('transform', `translate(${xScale(characterCount * .015)},${yScale(wordCount * .12)})rotate(180)`);
+          .attr('transform', `translate(${xScale(characterCount * .015)},${yScale(wordCount * .1)})rotate(180)`);
 
     viz.append('text') // unique marker key text
       .html(`"${lastUniqueWord}" ~ last of ${uniqueCount} unique words used`)
         .attr('color', 'black')
-        .attr('transform', `translate(${xScale(characterCount * .025)},${yScale(wordCount * .15)})`)
+        .attr('transform', `translate(${xScale(characterCount * .025)},${yScale(wordCount * .115)})`)
         .attr('text-align', 'center');
 
     viz.append('path') // plotted triangle
@@ -154,33 +153,32 @@ class MainViz extends React.Component {
     // Bars
     viz.selectAll('rect')
       .data(wordsVizArray)
-      .enter()
-      .append('rect')
-      .attr('class', d => `WORD_${d.cleanedWord}`)
-      .attr('width', d => d.width)
-      .attr('height', d => d.height)
-      .attr('x', d => d.x + margin.left)
-      .attr('y', d => height - d.y - margin.bottom - wordsVizArray[0].height)
-      .attr('fill', d => d.cleanedWord === selectedWord ? 'red' : 'blue')
-      .on('click', (event, d) => {
-        d3.selectAll(`.WORD_${d.cleanedWord}`).classed('hovered', false);
-        this.setState({selectedWord: d.cleanedWord})
-      })
-      .on('mouseover', function(event, d) {
-        d3.select(this).style('cursor', 'pointer');
-        d3.selectAll(`.WORD_${d.cleanedWord}`).classed('hovered', true);
-        tooltip.style('visibility', 'visible');
-      })
-      .on('mousemove', (event, d) => {
-        tooltip
-          .html(`${d.occurance} / ${wordsCounts[d.cleanedWord]} uses of "${d.cleanedWord}"`)
-          .style('left', `${event.pageX + 5}px`)     
-          .style('top', `${event.pageY + 10}px`);
-      })
-      .on('mouseout', (event, d) => {
-        tooltip.style('visibility', 'hidden');
-        d3.selectAll(`.WORD_${d.cleanedWord}`).classed('hovered', false);
-      });
+      .enter().append('rect')
+        .attr('class', d => `WORD_${d.cleanedWord}`)
+        .attr('width', d => d.width)
+        .attr('height', d => d.height)
+        .attr('x', d => d.x + margin.left)
+        .attr('y', d => height - d.y - margin.bottom - wordsVizArray[0].height)
+        .attr('fill', d => d.cleanedWord === selectedWord ? 'red' : 'blue')
+        .on('click', (event, d) => {
+          d3.selectAll(`.WORD_${d.cleanedWord}`).classed('hovered', false);
+          this.setState({selectedWord: d.cleanedWord})
+        })
+        .on('mouseover', function(event, d) {
+          d3.select(this).style('cursor', 'pointer');
+          d3.selectAll(`.WORD_${d.cleanedWord}`).classed('hovered', true);
+          tooltip.style('visibility', 'visible');
+        })
+        .on('mousemove', (event, d) => {
+          tooltip
+            .html(`${d.occurance} / ${wordsCounts[d.cleanedWord]} uses of "${d.cleanedWord}"`)
+            .style('left', `${event.pageX + 5}px`)     
+            .style('top', `${event.pageY + 10}px`);
+        })
+        .on('mouseout', (event, d) => {
+          tooltip.style('visibility', 'hidden');
+          d3.selectAll(`.WORD_${d.cleanedWord}`).classed('hovered', false);
+        });
 
     // // // // //
     // TO - DO //
@@ -188,16 +186,17 @@ class MainViz extends React.Component {
     // var foundPunctuations = Object.keys(punctuations).filter(p => {return punctuations[p].length > 0});
     // for(let p=0; p<foundPunctuations.length; p++) {
     //   let thisPunc = foundPunctuations[p];
-    //   viz.selectAll('span')
-    //     .data(punctuations[thisPunc])
-    //     .enter()
-    //     .append('span')
-    //     .attr('transform', d => `translate(${d.x + margin.left},${yScale(wordCount * .5)})`)
-    //     //.attr('x', d => )
+    //   viz.selectAll('a')
+    //     .data(punctuations[thisPunc]).enter()
+    //     .append('a')
+    //     .attr('transform', d => `translate(${d.x + margin.left},${yScale((d.occurance/punctuations[thisPunc].length)*wordCount)})`)
+    //     //.attr('x', d => d.x)
     //     //.attr('y', d => height - d.x - margin.bottom)
     //     .attr('font-size', '60px')
-    //     .html(thisPunc + 'AAA');
+    //     .html('AAA'); //thisPunc
     // };
+    // // // // //
+    // // // // //
 
     // wordCount
     d3.select('#wordCount').select('ol').remove(); // clear existing
@@ -240,8 +239,9 @@ class MainViz extends React.Component {
         d3.selectAll(`.WORD_${d}`).classed('hovered', false);
       });
 
+
     return (<TextArea
-      placeholder='BEGIN DRAFTING HERE! (currently using default MLK speech)'
+      placeholder={'BEGIN DRAFTING HERE! (currently using default MLK speech) === ' + textIn}
       onChange={this.handleTextIn} />);
   };
 };
