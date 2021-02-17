@@ -195,8 +195,8 @@ class MainViz extends React.Component { // state => render HTML
         .data(thisPuncAppearances)
         .enter().append('text')
         .attr('class', d => `PUNC_ PUNC_${thisPuncStrName}`)
-        .attr('transform', d => `translate(${d.x + margin.left},${yScale(wordCount*(1 - (d.occurance/countThisPunc)))})`) // y reversed high-low
-        .attr('font-size', '80px')
+        .attr('transform', d => `translate(${d.x + margin.left},${yScale(wordCount*(1.02 - (d.occurance/countThisPunc)))})`) // y reversed high-low
+        .attr('font-size', '90px')
         .html(thisPunc)
           .classed('punc-hovered', thisPunc === this.state.selectedPunc)
         .on('click', (event, d) => {
