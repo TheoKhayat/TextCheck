@@ -5,8 +5,9 @@
 - sampleData.js ~ used in absence of TextArea input
 
 Seen @ http://TheoKhayat.github.io/TextCheck
+
 (NOT mobile friendly!)
 
-<3 :)
+Deployed via `gh-pages` npm package like: https://dev.to/yuribenjamin/how-to-deploy-react-app-in-github-pages-2a1f
 
-=> deployed via `gh-pages` npm package like: https://dev.to/yuribenjamin/how-to-deploy-react-app-in-github-pages-2a1f
+<3 :)
