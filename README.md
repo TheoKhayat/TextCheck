@@ -8,6 +8,6 @@ Seen @ http://TheoKhayat.github.io/TextCheck
 
 (NOT mobile friendly!)
 
-Deployed via `gh-pages` npm package like: https://dev.to/yuribenjamin/how-to-deploy-react-app-in-github-pages-2a1f
+Deploy workflow ~ https://dev.to/yuribenjamin/how-to-deploy-react-app-in-github-pages-2a1f
 
 <3 :)
