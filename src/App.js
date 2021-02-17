@@ -14,7 +14,8 @@ function cleanText(textIn) {return textIn.toLowerCase().replace(/[^0-9a-z]/gi, `
 class MainViz extends React.Component { // state => render HTML
   state = {
     textAreaContent: '',
-    selectedWord: 'the'
+    selectedWord: 'the',
+    selectedPunc: '.'
   };
 
   handleTextIn = (e, { value }) => this.setState({ textAreaContent: value }); // used in render()
@@ -30,7 +31,6 @@ class MainViz extends React.Component { // state => render HTML
       characterCount = textIn.replaceAll(' ', '').length,
       uniqueWords = new Set(splitTextIn.map(word => cleanText(word))),
       uniqueCount = uniqueWords.size;
-    
 
     // axis
     var xScale = d3.scaleLinear()
@@ -41,7 +41,13 @@ class MainViz extends React.Component { // state => render HTML
       .range([margin.bottom, height - margin.top]);
 
     // viz meta
-    var punctuations = { '!': [], ',': [], '.': [], '?': [], ';': [] },
+    var punctuations = {
+        '!': { appearances: [], strName: 'exclaimation' },
+        ',': { appearances: [], strName: 'comma' },
+        '.': { appearances: [], strName: 'period' },
+        '?': { appearances: [], strName: 'question' },
+        ';': { appearances: [], strName: 'semi-colon' }
+      }, // add any additional interesting punctuations ^here
       wordsVizArray = [],
       wordsCounts = {},
       lastUniqueWord = null,
@@ -70,9 +76,9 @@ class MainViz extends React.Component { // state => render HTML
         };
       };
       for(let p=0; p<thisPunctuations.length; p++){ // build punctuations
-        punctuations[thisPunctuations[p]].push({
+        punctuations[thisPunctuations[p]].appearances.push({
           x: thisX + (thisWidth*((p+1)/thisPunctuations.length)),
-          occurance: punctuations[thisPunctuations[p]].length + 1 // calculates y
+          occurance: punctuations[thisPunctuations[p]].appearances.length + 1 // calculates y
         });
       };
 
@@ -161,8 +167,7 @@ class MainViz extends React.Component { // state => render HTML
         .attr('y', d => height - d.y - margin.bottom - wordsVizArray[0].height)
         .attr('fill', d => d.cleanedWord === selectedWord ? 'red' : 'blue')
         .on('click', (event, d) => {
-          d3.selectAll(`.WORD_${d.cleanedWord}`).classed('hovered', false);
-          this.setState({selectedWord: d.cleanedWord})
+          this.setState({selectedWord: d.cleanedWord});
         })
         .on('mouseover', function(event, d) {
           d3.select(this).style('cursor', 'pointer');
@@ -170,8 +175,7 @@ class MainViz extends React.Component { // state => render HTML
           tooltip.style('visibility', 'visible');
         })
         .on('mousemove', (event, d) => {
-          tooltip
-            .html(`${d.occurance} / ${wordsCounts[d.cleanedWord]} uses of "${d.cleanedWord}"`)
+          tooltip.html(`${d.occurance} / ${wordsCounts[d.cleanedWord]} uses of "${d.cleanedWord}"`)
             .style('left', `${event.pageX + 5}px`)     
             .style('top', `${event.pageY + 10}px`);
         })
@@ -180,23 +184,46 @@ class MainViz extends React.Component { // state => render HTML
           d3.selectAll(`.WORD_${d.cleanedWord}`).classed('hovered', false);
         });
 
-    // // // // //
-    // TO - DO //
     //punctuations
-    // var foundPunctuations = Object.keys(punctuations).filter(p => {return punctuations[p].length > 0});
-    // for(let p=0; p<foundPunctuations.length; p++) {
-    //   let thisPunc = foundPunctuations[p];
-    //   viz.selectAll('a')
-    //     .data(punctuations[thisPunc]).enter()
-    //     .append('a')
-    //     .attr('transform', d => `translate(${d.x + margin.left},${yScale((d.occurance/punctuations[thisPunc].length)*wordCount)})`)
-    //     //.attr('x', d => d.x)
-    //     //.attr('y', d => height - d.x - margin.bottom)
-    //     .attr('font-size', '60px')
-    //     .html('AAA'); //thisPunc
-    // };
-    // // // // //
-    // // // // //
+    var foundPunctuations = Object.keys(punctuations).filter(p => punctuations[p].appearances.length > 0);
+    for(let p=0; p<foundPunctuations.length; p++) {
+      let thisPunc = foundPunctuations[p],
+        thisPuncStrName = punctuations[thisPunc].strName,
+        thisPuncAppearances = punctuations[thisPunc].appearances,
+        countThisPunc = thisPuncAppearances.length;
+      viz.selectAll('punctuations')
+        .data(thisPuncAppearances)
+        .enter().append('text')
+        .attr('class', d => `PUNC_ PUNC_${thisPuncStrName}`)
+        .attr('transform', d => `translate(${d.x + margin.left},${yScale(wordCount*(1 - (d.occurance/countThisPunc)))})`) // y reversed high-low
+        .attr('font-size', '80px')
+        .html(thisPunc)
+          .classed('punc-hovered', thisPunc === this.state.selectedPunc)
+        .on('click', (event, d) => {
+          this.setState({selectedPunc: thisPunc});
+        })
+        .on('mouseover', function(event, d) {
+          d3.select(this).style('cursor', 'pointer');
+          d3.selectAll('.PUNC_')
+            .classed('punc-hovered', false); // clear all shadows
+          d3.selectAll(`.PUNC_${thisPuncStrName}`)
+            .classed('punc-hovered', true); // add shadows to hovered          
+          tooltip.html(`${d.occurance} / ${countThisPunc} uses of "${thisPunc}"`)
+            .style('visibility', 'visible');
+        })
+        .on('mousemove', (event) => {
+          tooltip
+            .style('left', `${event.pageX + 12}px`)
+            .style('top', `${event.pageY}px`);
+        })
+        .on('mouseout', (event, d) => {
+          tooltip.style('visibility', 'hidden');
+          d3.selectAll('.PUNC_')
+            .classed('punc-hovered', false);
+          d3.selectAll(`.PUNC_${punctuations[this.state.selectedPunc].strName}`)
+            .classed('punc-hovered', true);
+        });
+    };
 
     // wordCount
     d3.select('#wordCount').select('ol').remove(); // clear existing
@@ -212,21 +239,19 @@ class MainViz extends React.Component { // state => render HTML
         if(wordsCounts[a] < wordsCounts[b]) return 1;
         return -1;
       }))
-      .enter()
-      .append('li')
+      .enter().append('li')
       .attr('class', d => `WORD_${d}`)
       .text(d=>d)
         .style('font-size', d => `${textSize(wordsCounts[d])}px`)
         .style('color', d => `${d === this.state.selectedWord ? 'red' : 'blue'}`) // if seleced / hovered
       .on('click', (event, d) => {
-        d3.selectAll(`.WORD_${d}`).classed('hovered', false);
-        this.setState({selectedWord: d})
+        this.setState({selectedWord: d});
       })
       .on('mouseover', function(event, d) {
         d3.select(this).style('cursor', 'pointer');
-        d3.selectAll(`.WORD_${d}`).classed('hovered', true);
-        tooltip
-          .html(`"${d}" used ${wordsCounts[d]} time${wordsCounts[d] > 1 ? 's' : ''}`)
+        d3.selectAll(`.WORD_${d}`)
+          .classed('hovered', true);
+        tooltip.html(`"${d}" used ${wordsCounts[d]} time${wordsCounts[d] > 1 ? 's' : ''}`)
           .style('visibility', 'visible');
       })
       .on('mousemove', (event) => {
@@ -236,9 +261,9 @@ class MainViz extends React.Component { // state => render HTML
         })
       .on('mouseout', (event, d) => {
         tooltip.style('visibility', 'hidden');
-        d3.selectAll(`.WORD_${d}`).classed('hovered', false);
+        d3.selectAll(`.WORD_${d}`)
+          .classed('hovered', false);
       });
-
 
     return (<TextArea
       placeholder={'BEGIN DRAFTING HERE! (currently using default MLK speech) === ' + textIn}
