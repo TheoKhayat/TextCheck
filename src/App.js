@@ -6,7 +6,7 @@ import mlk from './static/sampleData.js'; // demo data
 
 const margin = { top: 30, right: 30, bottom: 30, left: 30 }, //presets
   width = window.innerWidth,
-  height = window.innerHeight*.8;
+  height = window.innerHeight*.85;
 
 function cleanText(textIn) {return textIn.toLowerCase().replace(/[^0-9a-z]/gi, ``)}; //helper
 
@@ -23,7 +23,7 @@ class MainViz extends React.Component { // state => render HTML
   render() { // re-renders HTML when state changes
     var selectedWord = this.state.selectedWord,
       textIn = this.state.textAreaContent;
-    if (!textIn) {textIn = mlk.slice(0,301)}; // sample
+    if (!textIn) {textIn = mlk.slice(0,301)}; // sample .slice(0,301)
     textIn = textIn.trimEnd().replaceAll('\n', ' ');
     
     var splitTextIn = textIn.split(' '),
@@ -157,7 +157,7 @@ class MainViz extends React.Component { // state => render HTML
           .attr('transform', `translate(${lastUniqueWordX + margin.left},${yScale(wordCount * .99)})rotate(180)`);
 
     // Bars
-    viz.selectAll('rect')
+    viz.selectAll('bars')
       .data(wordsVizArray)
       .enter().append('rect')
         .attr('class', d => `WORD_${d.cleanedWord}`)
@@ -183,6 +183,30 @@ class MainViz extends React.Component { // state => render HTML
           tooltip.style('visibility', 'hidden');
           d3.selectAll(`.WORD_${d.cleanedWord}`).classed('hovered', false);
         });
+    // bottom bars
+    viz.selectAll('bottomBars')
+      .data(wordsVizArray)
+        .enter().append('rect')
+          .attr('class', d => `WORD_${d.cleanedWord}`)
+          .attr('width', d => d.width)
+          .attr('height', 8)
+          .attr('x', d => d.x + margin.left)
+          .attr('y', height - wordsVizArray[0].height - margin.bottom/2)
+          .attr('fill', d => d.cleanedWord === selectedWord ? 'red' : 'none')
+          .on('mouseover', function(event, d) {
+            d3.select(this).style('cursor', 'crosshair');
+            d3.selectAll(`.WORD_${d.cleanedWord}`).classed('hovered', true);
+            tooltip.style('visibility', 'visible');
+          })
+          .on('mousemove', (event, d) => {
+            tooltip.html(`${d.occurance} / ${wordsCounts[d.cleanedWord]} uses of "${d.cleanedWord}"`)
+              .style('left', `${event.pageX + 5}px`)     
+              .style('top', `${event.pageY + 10}px`);
+          })
+          .on('mouseout', (event, d) => {
+            tooltip.style('visibility', 'hidden');
+            d3.selectAll(`.WORD_${d.cleanedWord}`).classed('hovered', false);
+          });
 
     //punctuations
     var foundPunctuations = Object.keys(punctuations).filter(p => punctuations[p].appearances.length > 0);
@@ -195,8 +219,8 @@ class MainViz extends React.Component { // state => render HTML
         .data(thisPuncAppearances)
         .enter().append('text')
         .attr('class', d => `PUNC_ PUNC_${thisPuncStrName}`)
-        .attr('transform', d => `translate(${d.x + margin.left},${yScale(wordCount*(1.02 - (d.occurance/countThisPunc)))})`) // y reversed high-low
-        .attr('font-size', '90px')
+        .attr('transform', d => `translate(${d.x + margin.left},${yScale(wordCount*(1.03 - (d.occurance/countThisPunc)))})`) // y reversed high-low
+        .attr('font-size', '85px')
         .html(thisPunc)
           .classed('punc-hovered', thisPunc === this.state.selectedPunc)
         .on('click', (event, d) => {
@@ -229,7 +253,7 @@ class MainViz extends React.Component { // state => render HTML
     d3.select('#wordCount').select('ol').remove(); // clear existing
     var textSize = d3.scaleLog()
       .domain([1, Math.max(...Object.values(wordsCounts))])
-      .range([20, 90]);
+      .range([15, 75]);
     d3.select('#wordCount')
       .append('ol')
         .style('list-style-type', 'none')
