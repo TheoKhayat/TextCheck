@@ -23,7 +23,7 @@ class MainViz extends React.Component { // state => render HTML
   render() { // re-renders HTML when state changes
     var selectedWord = this.state.selectedWord,
       textIn = this.state.textAreaContent;
-    if (!textIn) {textIn = mlk.slice(0,301)}; // sample .slice(0,301)
+    if (!textIn) {textIn = mlk.slice(0,301)}; // sample
     textIn = textIn.trimEnd().replaceAll('\n', ' ');
     
     var splitTextIn = textIn.split(' '),
@@ -42,7 +42,7 @@ class MainViz extends React.Component { // state => render HTML
 
     // viz meta
     var punctuations = {
-        '!': { appearances: [], strName: 'exclaimation' },
+        '!': { appearances: [], strName: 'exclamation' },
         ',': { appearances: [], strName: 'comma' },
         '.': { appearances: [], strName: 'period' },
         '?': { appearances: [], strName: 'question' },
