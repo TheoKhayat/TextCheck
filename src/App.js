@@ -4,11 +4,11 @@ import * as d3 from 'd3';
 
 import mlk from './static/sampleData.js'; // demo data
 
-const margin = { top: 30, right: 30, bottom: 30, left: 30 }, //presets
+const margin = { top: 30, right: 30, bottom: 30, left: 30 }, // presets
   width = window.innerWidth,
   height = window.innerHeight*.85;
 
-function cleanText(textIn) {return textIn.toLowerCase().replace(/[^0-9a-z]/gi, ``)}; //helper
+function cleanText(textIn) {return textIn.toLowerCase().replace(/[^0-9a-z]/gi, ``)}; // strips non-alphanumeric
 
 
 class MainViz extends React.Component { // state => render HTML
@@ -23,7 +23,7 @@ class MainViz extends React.Component { // state => render HTML
   render() { // re-renders HTML when state changes
     var selectedWord = this.state.selectedWord,
       textIn = this.state.textAreaContent;
-    if (!textIn) {textIn = mlk.slice(0,301)}; // sample
+    if (!textIn) {textIn = mlk}; // sample .slice(0,301)
     textIn = textIn.trimEnd().replaceAll('\n', ' ');
     
     var splitTextIn = textIn.split(' '),
@@ -93,7 +93,7 @@ class MainViz extends React.Component { // state => render HTML
         occurance: wordsCounts[cleanWord]
       });
 
-      thisX = thisX + thisWidth;
+      thisX = thisX + thisWidth; // set corner of next word rect
       thisY = thisY + thisHeight;
     };
 
@@ -208,7 +208,7 @@ class MainViz extends React.Component { // state => render HTML
             d3.selectAll(`.WORD_${d.cleanedWord}`).classed('hovered', false);
           });
 
-    //punctuations
+    // punctuations
     var foundPunctuations = Object.keys(punctuations).filter(p => punctuations[p].appearances.length > 0);
     for(let p=0; p<foundPunctuations.length; p++) {
       let thisPunc = foundPunctuations[p],
