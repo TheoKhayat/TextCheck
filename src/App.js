@@ -15,33 +15,22 @@ class MainViz extends React.Component { // state => render HTML
   state = {
     textAreaContent: '',
     selectedWord: 'the',
-    selectedPunc: '.'
+    selectedPunc: '!'
   };
 
   handleTextIn = (e, { value }) => this.setState({ textAreaContent: value }); // used in render()
 
   render() { // re-renders HTML when state changes
-    var selectedWord = this.state.selectedWord,
-      textIn = this.state.textAreaContent;
+    var textIn = this.state.textAreaContent;
     if (!textIn) {textIn = mlk}; // sample .slice(0,301)
     textIn = textIn.trimEnd().replaceAll('\n', ' ');
     
-    var splitTextIn = textIn.split(' '),
+    var splitTextIn = textIn.split(' '), // viz meta
       wordCount = splitTextIn.length,
       characterCount = textIn.replaceAll(' ', '').length,
       uniqueWords = new Set(splitTextIn.map(word => cleanText(word))),
-      uniqueCount = uniqueWords.size;
-
-    // axis
-    var xScale = d3.scaleLinear()
-      .domain([0, characterCount])
-      .range([margin.left, width - margin.left - margin.right]),
-    yScale = d3.scaleLinear()
-      .domain([0, wordCount])
-      .range([margin.bottom, height - margin.top]);
-
-    // viz meta
-    var punctuations = {
+      uniqueCount = uniqueWords.size,
+      punctuations = {
         '!': { appearances: [], strName: 'exclamation' },
         ',': { appearances: [], strName: 'comma' },
         '.': { appearances: [], strName: 'period' },
@@ -54,7 +43,15 @@ class MainViz extends React.Component { // state => render HTML
       lastUniqueWordX = null,
       thisX = 0,
       thisY = 0,
-      thisHeight = (height - margin.top - margin.bottom)/wordCount;
+      thisHeight = (height - margin.top - margin.bottom)/wordCount,
+      selectedWord = this.state.selectedWord,
+      xScale = d3.scaleLinear() // axis
+        .domain([0, characterCount])
+        .range([margin.left, width - margin.left - margin.right]),
+      yScale = d3.scaleLinear()
+        .domain([0, wordCount])
+        .range([margin.bottom, height - margin.top]);
+
     for (let i=0; i<wordCount; i++) { // build viz data from textArea input
       var thisWord = splitTextIn[i];
       var cleanWord = cleanText(thisWord);
@@ -127,13 +124,11 @@ class MainViz extends React.Component { // state => render HTML
         .attr('color', 'black')
         .attr('transform', `translate(${xScale(characterCount * .01)},${yScale(wordCount * .04)})`) // x,y percentiles
         .attr('text-align', 'left');
-
     viz.append('text') // Y
       .html(`Y: Words Remaining / ${wordCount}`)
         .attr('color', 'black')
         .attr('transform', `translate(${xScale(characterCount * .01)},${yScale(wordCount * .07)})`)
         .attr('text-align', 'left');
-
     viz.append('path') // triangle key
       .style('stroke', 'black')
       .style('fill', 'red')
@@ -141,13 +136,11 @@ class MainViz extends React.Component { // state => render HTML
         .type(d3.symbolTriangle)
         .size(230))
           .attr('transform', `translate(${xScale(characterCount * .015)},${yScale(wordCount * .1)})rotate(180)`);
-
     viz.append('text') // unique marker key text
       .html(`"${lastUniqueWord}" ~ last of ${uniqueCount} unique words used`)
         .attr('color', 'black')
         .attr('transform', `translate(${xScale(characterCount * .025)},${yScale(wordCount * .115)})`)
         .attr('text-align', 'center');
-
     viz.append('path') // plotted triangle
       .style('stroke', 'black')
       .style('fill', 'red')
@@ -249,7 +242,7 @@ class MainViz extends React.Component { // state => render HTML
         });
     };
 
-    // wordCount
+    // word count
     d3.select('#wordCount').select('ol').remove(); // clear existing
     var textSize = d3.scaleLog()
       .domain([1, Math.max(...Object.values(wordsCounts))])
