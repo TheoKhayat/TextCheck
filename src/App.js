@@ -184,7 +184,7 @@ class MainViz extends React.Component { // state => render HTML
           .attr('width', d => d.width)
           .attr('height', 8)
           .attr('x', d => d.x + margin.left)
-          .attr('y', height - wordsVizArray[0].height - margin.bottom/2)
+          .attr('y', height - margin.bottom)
           .attr('fill', d => d.cleanedWord === selectedWord ? 'red' : 'none')
           .on('mouseover', function(event, d) {
             d3.select(this).style('cursor', 'crosshair');
