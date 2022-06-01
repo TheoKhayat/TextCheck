@@ -2,13 +2,21 @@ import React from 'react';
 import { TextArea } from 'semantic-ui-react';
 import * as d3 from 'd3';
 
-import mlk from './static/sampleData.js'; // demo data
+import cash from './static/sampleData.js'; // demo data
+
+const welcomeMessage = `Welcome!
+
+Paste your text to visualize in the bottom right input area, or just draft by typing there.
+
+Then scroll and hover over individual words and punctuations to see how redundant and well-paced your inputted text was.
+
+Happy proof-reading :)`;
 
 const margin = { top: 30, right: 30, bottom: 30, left: 30 }, // presets
   width = window.innerWidth,
   height = window.innerHeight*.85;
 
-function cleanText(textIn) {return textIn.toLowerCase().replace(/[^0-9a-z]/gi, ``)}; // strips non-alphanumeric
+const cleanText = textIn => textIn.toLowerCase().replace(/[^0-9a-z]/gi, ``); // strips non-alphanumeric
 
 
 class MainViz extends React.Component { // state => render HTML
@@ -18,11 +26,15 @@ class MainViz extends React.Component { // state => render HTML
     selectedPunc: '!'
   };
 
+  componentDidMount() {
+    alert(welcomeMessage);
+  };
+
   handleTextIn = (e, { value }) => this.setState({ textAreaContent: value }); // used in render()
 
   render() { // re-renders HTML when state changes
     var textIn = this.state.textAreaContent;
-    if (!textIn) {textIn = mlk}; // sample .slice(0,301)
+    if (!textIn) {textIn = cash};
     textIn = textIn.trimEnd().replaceAll('\n', ' ');
     
     var splitTextIn = textIn.split(' '), // viz meta
@@ -283,7 +295,7 @@ class MainViz extends React.Component { // state => render HTML
       });
 
     return (<TextArea
-      placeholder={'BEGIN DRAFTING HERE! (currently using default MLK speech) === ' + textIn}
+      placeholder={'BEGIN DRAFTING HERE! (currently using default Johnny Cash lyrics) === ' + textIn}
       onChange={this.handleTextIn} />);
   };
 };
